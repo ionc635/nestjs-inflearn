@@ -20,15 +20,16 @@ export class AuthService {
 
   async signIn(
     authCredentialsDto: AuthCredentialsDto,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ message: string; data: { accessToken: string } }> {
     const { username, password } = authCredentialsDto;
     const user = await this.userRepository.findOne({ username });
 
     if (user && (await bcrypt.compare(password, user.password))) {
       const payload: JwtPayload = { username };
       const accessToken = await this.jwtService.sign(payload);
+      const id = user.id;
 
-      return { accessToken };
+      return { message: 'ok', data: { accessToken } };
     } else {
       throw new UnauthorizedException('Login failed');
     }
